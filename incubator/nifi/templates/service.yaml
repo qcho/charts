@@ -10,10 +10,18 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.nifi.web.http.port }}
       targetPort: http
-      protocol: TCP
       name: http
+      protocol: TCP
+    - port: {{ .Values.nifi.web.https.port }}
+      targetPort: https
+      name: https
+      protocol: TCP
+    - port: {{ .Values.nifi.remote.input.socket.port }}
+      targetPort: socket
+      name: socket
+      protocol: TCP
   selector:
     app: {{ template "nifi.name" . }}
     release: {{ .Release.Name }}

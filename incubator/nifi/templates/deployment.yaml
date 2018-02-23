@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "nifi.fullname" . }}
@@ -23,10 +23,30 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: NIFI_WEB_HTTP_PORT
+              value: {{ .Values.nifi.web.http.port | quote }}
+            - name: NIFI_WEB_HTTP_HOST
+              value: {{ .Values.nifi.web.http.host | quote }}
+            - name: NIFI_WEB_HTTPS_PORT
+              value: {{ .Values.nifi.web.https.port | quote }}
+            - name: NIFI_WEB_HTTPS_HOST
+              value: {{ .Values.nifi.web.https.host | quote }}
+            - name: NIFI_REMOTE_INPUT_HOST
+              value: {{ .Values.nifi.remote.input.host | quote }}
+            - name: NIFI_REMOTE_INPUT_SOCKET_PORT
+              value: {{ .Values.nifi.remote.input.socket.port | quote }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ .Values.nifi.web.http.port }}
               protocol: TCP
+            - name: https
+              containerPort: {{ .Values.nifi.web.https.port }}
+              protocol: TCP
+            - name: socket
+              containerPort: {{ .Values.nifi.remote.input.socket.port }}
+              protocol: TCP
+          {{/**
           livenessProbe:
             httpGet:
               path: /
@@ -35,6 +55,7 @@ spec:
             httpGet:
               path: /
               port: http
+          **/}}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
