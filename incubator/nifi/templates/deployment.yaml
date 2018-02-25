@@ -37,25 +37,33 @@ spec:
             - name: NIFI_REMOTE_INPUT_SOCKET_PORT
               value: {{ .Values.nifi.remote.input.socket.port | quote }}
           ports:
-            - name: http
-              containerPort: {{ .Values.nifi.web.http.port }}
+            - containerPort: {{ .Values.nifi.web.http.port }}
               protocol: TCP
-            - name: https
-              containerPort: {{ .Values.nifi.web.https.port }}
+              name: nifi-pod-http
+            - containerPort: {{ .Values.nifi.web.https.port }}
               protocol: TCP
-            - name: socket
-              containerPort: {{ .Values.nifi.remote.input.socket.port }}
+              name: nifi-pod-https
+            - containerPort: {{ .Values.nifi.remote.input.socket.port }}
               protocol: TCP
-          {{/**
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
+              name: nifi-pod-socket
           readinessProbe:
             httpGet:
               path: /
-              port: http
-          **/}}
+              port: nifi-pod-http
+              httpHeaders:
+              - name: Host
+                value: {{ .Values.nifi.web.http.host | quote }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: nifi-pod-http
+              httpHeaders:
+              - name: Host
+                value: {{ .Values.nifi.web.http.port | quote }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}

@@ -11,16 +11,16 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.nifi.web.http.port }}
-      targetPort: http
-      name: http
+      targetPort: nifi-pod-http
+      name: nifi-svc-http
       protocol: TCP
     - port: {{ .Values.nifi.web.https.port }}
-      targetPort: https
-      name: https
+      targetPort: nifi-pod-https
+      name: nifi-svc-https
       protocol: TCP
     - port: {{ .Values.nifi.remote.input.socket.port }}
-      targetPort: socket
-      name: socket
+      targetPort: nifi-pod-socket
+      name: nifi-svc-socket
       protocol: TCP
   selector:
     app: {{ template "nifi.name" . }}
